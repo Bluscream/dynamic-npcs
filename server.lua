@@ -1,28 +1,10 @@
 local OnlinePlayers = GetNumPlayerIndices()
 local MaxPlayers = GetConvarInt("sv_maxclients", 48)
 
-local function stringSplit(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+local function SendData(data)
+    TriggerClientEvent(updateDataEvent, -1, data)
 end
-function sortedKeys(query, sortFunction)
-    local keys, len = {}, 0
-    for k,_ in pairs(query) do
-        len = len + 1
-        keys[len] = k
-    end
-    table.sort(keys, sortFunction)
-    return keys
-end
-
-function UpdateData()
+local function UpdateData()
     local OnlinePlayersPercent = 100 * OnlinePlayers / (OnlinePlayers + MaxPlayers)
     print("[NPCS] Online Players: " .. OnlinePlayers .. " / " .. MaxPlayers .. " (" .. tostring(OnlinePlayersPercent) .. ")")
     for _, v in pairs(sortedKeys(config)) do
@@ -35,12 +17,12 @@ function UpdateData()
         if command[3] == "under" then
             if type < count then
                 print("[NPCS] " .. v .. " matched!")
-                TriggerClientEvent(GetCurrentResourceName() .. ':updateData', -1, config[v])
+                SendData(config[v])
                 return
             end
         elseif type > count then
             print("[NPCS] " .. v .. " matched!")
-            TriggerClientEvent(GetCurrentResourceName() .. ':updateData', -1, config[v])
+            SendData(config[v])
             return
         end
     end
@@ -61,8 +43,8 @@ AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then return end
     UpdateData()
 end)
-RegisterServerEvent(GetCurrentResourceName() .. ':requestData')
-AddEventHandler(GetCurrentResourceName() .. ':requestData', function(playerId)
+RegisterServerEvent(requestDataEvent)
+AddEventHandler(requestDataEvent, function(playerId)
 	print("Update request recieved from player " .. tostring(playerId))
     UpdateData()
 end)

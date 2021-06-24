@@ -2,24 +2,10 @@ npc_data = {
 	VehicleDensityMultiplier = 0,
 	ParkedVehicleDensityMultiplier = 0,
 	PedDensityMultiplier = 0,
-	DisableDispatch = true,
+	ScenarioPedDensityMultiplier = 0,
+	DisabledDispatchServices = { Dispatch.All },
 	DisableCops = true
 }
-
-function tprint (tbl, indent)
-	if not indent then indent = 0 end
-	for k, v in pairs(tbl) do
-		formatting = string.rep("  ", indent) .. k .. ": "
-		if type(v) == "table" then
-		print(formatting)
-		tprint(v, indent+1)
-		elseif type(v) == 'boolean' then
-		print(formatting .. tostring(v))      
-		else
-		print(formatting .. v)
-		end
-	end
-end
 
 Citizen.CreateThread(function()
 	while true do
@@ -29,17 +15,12 @@ Citizen.CreateThread(function()
 		SetRandomVehicleDensityMultiplierThisFrame(npc_data.VehicleDensityMultiplier) -- set random vehicles (car scenarios / cars driving off from a parking spot etc.) to 0
 		SetParkedVehicleDensityMultiplierThisFrame(npc_data.ParkedVehicleDensityMultiplier) -- set random parked vehicles (parked car scenarios) to 0
 		SetPedDensityMultiplierThisFrame(npc_data.PedDensityMultiplier) -- set npc/ai peds density to 0
-		SetScenarioPedDensityMultiplierThisFrame(npc_data.PedDensityMultiplier, npc_data.PedDensityMultiplier) -- set random npc/ai peds or scenario peds to 0
-		if npc_data.DisableDispatch then
-			for i = 1, 12 do
-				EnableDispatchService(i, false)
-			end
-		end
+		SetScenarioPedDensityMultiplierThisFrame(npc_data.ScenarioPedDensityMultiplier, npc_data.ScenarioPedDensityMultiplier) -- set random npc/ai peds or scenario peds to 0
 		if npc_data.DisableCops then
-			local playedId = PlayerId()
-			SetPlayerWantedLevel(playedId, 0, false)
-			SetPlayerWantedLevelNow(playedId, false)
-			SetPlayerWantedLevelNoDrop(playedId, 0, false)
+			-- local playedId = PlayerId()
+			-- SetPlayerWantedLevel(playedId, 0, false)
+			-- SetPlayerWantedLevelNow(playedId, false)
+			-- SetPlayerWantedLevelNoDrop(playedId, 0, false)
 			SetCreateRandomCops(false) -- disable random cops walking/driving around.
 			SetCreateRandomCopsNotOnScenarios(false) -- stop random cops (not in a scenario) from spawning.
 			SetCreateRandomCopsOnScenarios(false) -- stop random cops (in a scenario) from spawning.
@@ -55,13 +36,18 @@ Citizen.CreateThread(function()
 		end
 	end
 end)
-local updateDataEvent = GetCurrentResourceName() .. ':updateData'
+-- local next = next 
 RegisterNetEvent(updateDataEvent)
 AddEventHandler(updateDataEvent, function(data)
 	npc_data = data
+	if npc_data.DisabledDispatchServices then -- and next(npc_data.DisabledDispatchServices) ~= nil
+		for i,v in ipairs(npc_data.DisabledDispatchServices) do
+			EnableDispatchService(v, false)
+		end
+	end
+	if npc_data.DisableCops then SetMaxWantedLevel(0) else SetMaxWantedLevel(5) end
 end)
 
-local requestDataEvent = GetCurrentResourceName() .. ':requestData'
 -- AddEventHandler('onResourceStart', function(resourceName)
 --     if (GetCurrentResourceName() ~= resourceName) then return end
 --     TriggerServerEvent(requestDataEvent)
