@@ -1,4 +1,4 @@
-Dispatch = {
+DispatchServices = {
     PoliceAutomobile = 1,
     PoliceAutomobileWaitPulledOver = 9,
     PoliceAutomobileWaitCruising = 10,

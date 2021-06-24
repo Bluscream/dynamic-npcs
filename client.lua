@@ -3,7 +3,23 @@ npc_data = {
 	ParkedVehicleDensityMultiplier = 0,
 	PedDensityMultiplier = 0,
 	ScenarioPedDensityMultiplier = 0,
-	DisabledDispatchServices = { Dispatch.All },
+	DisabledDispatchServices = {
+		PoliceAutomobile = true,
+		PoliceAutomobileWaitPulledOver = true,
+		PoliceAutomobileWaitCruising = true,
+		PoliceRoadBlock = true,
+		PoliceRiders = true,
+		PoliceVehicleRequest = true,
+		PoliceHelicopter = true,
+		PoliceBoat = true,
+		SwatAutomobile = true,
+		SwatHelicopter = true,
+		ArmyVehicle = true,
+		FireDepartment = true,
+		AmbulanceDepartment = true,
+		Gangs = true,
+		BikerBackup = true
+	},
 	DisableCops = true
 }
 
@@ -40,10 +56,8 @@ end)
 RegisterNetEvent(updateDataEvent)
 AddEventHandler(updateDataEvent, function(data)
 	npc_data = data
-	if npc_data.DisabledDispatchServices then -- and next(npc_data.DisabledDispatchServices) ~= nil
-		for i,v in ipairs(npc_data.DisabledDispatchServices) do
-			EnableDispatchService(v, false)
-		end
+	for k,v in ipairs(npc_data.DisabledDispatchServices) do
+		EnableDispatchService(DispatchServices[k], npc_data.DisabledDispatchServices[v])
 	end
 	if npc_data.DisableCops then SetMaxWantedLevel(0) else SetMaxWantedLevel(5) end
 end)

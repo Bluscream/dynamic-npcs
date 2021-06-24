@@ -1,9 +1,6 @@
 local OnlinePlayers = GetNumPlayerIndices()
 local MaxPlayers = GetConvarInt("sv_maxclients", 48)
 
-local function SendData(data)
-    TriggerClientEvent(updateDataEvent, -1, data)
-end
 local function UpdateData()
     local OnlinePlayersPercent = 100 * OnlinePlayers / (OnlinePlayers + MaxPlayers)
     print("[NPCS] Online Players: " .. OnlinePlayers .. " / " .. MaxPlayers .. " (" .. tostring(OnlinePlayersPercent) .. ")")
@@ -17,12 +14,12 @@ local function UpdateData()
         if command[3] == "under" then
             if type < count then
                 print("[NPCS] " .. v .. " matched!")
-                SendData(config[v])
+                TriggerClientEvent(updateDataEvent, -1, config[v])
                 return
             end
         elseif type > count then
             print("[NPCS] " .. v .. " matched!")
-            SendData(config[v])
+            TriggerClientEvent(updateDataEvent, -1, config[v])
             return
         end
     end
